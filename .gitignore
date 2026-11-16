@@ -1,0 +1,32 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+*.egg-info/
+
+# --- Generated dashboards (keep the committed sample and docs images) ---
+*.png
+!dashboard/sample_dashboard.png
+!docs/img/*.png
+
+# --- Suricata output and captures: never commit real traffic ---
+eve.json
+*.log
+filestore/
+*.pcap
+*.pcapng
+
+# --- Secrets ---
+.env
+.env.*
+*.key
+*.pem
+
+# --- IDE / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
