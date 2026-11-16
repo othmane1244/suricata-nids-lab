@@ -1,0 +1,65 @@
+# ============================================================
+# suricata.yaml.snippet — Paramètres clés à modifier
+# CodeAlpha Cybersecurity Internship — Task 4: NIDS
+# ============================================================
+#
+# Ce n'est PAS un suricata.yaml complet (le fichier officiel fait
+# ~3000 lignes). Voici uniquement les sections à éditer dans
+# /etc/suricata/suricata.yaml après installation.
+
+# ------------------------------------------------------------
+# 1. Définir ton réseau local (adapte selon ton lab, ex. 192.168.56.0/24)
+# ------------------------------------------------------------
+vars:
+  address-groups:
+    HOME_NET: "[192.168.56.0/24]"
+    EXTERNAL_NET: "!$HOME_NET"
+
+# ------------------------------------------------------------
+# 2. Interface de capture (AF_PACKET = mode IDS passif standard)
+# Remplace eth1 par l'interface réelle de ta VM (ip a / ifconfig)
+# ------------------------------------------------------------
+af-packet:
+  - interface: eth1
+    cluster-id: 99
+    cluster-type: cluster_flow
+    defrag: yes
+
+# ------------------------------------------------------------
+# 3. Charger nos règles personnalisées en plus des règles ET Open
+# Garder le default-rule-path du paquet (/var/lib/suricata/rules sous
+# Ubuntu/Debian) : c'est là que suricata-update écrit suricata.rules.
+# custom.rules est référencé par son chemin absolu.
+# ------------------------------------------------------------
+default-rule-path: /var/lib/suricata/rules
+rule-files:
+  - suricata.rules                       # règles officielles (ET Open, via suricata-update)
+  - /etc/suricata/rules/custom.rules     # nos règles (ce repo)
+
+# ------------------------------------------------------------
+# 4. Activer eve.json (format JSON exploité par notre dashboard)
+# ------------------------------------------------------------
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json
+      types:
+        - alert:
+            payload: yes
+            payload-printable: yes
+            packet: yes
+            metadata: yes
+        - http
+        - dns
+        - flow
+        - anomaly
+
+# ------------------------------------------------------------
+# 5. Nécessaire pour la règle "Suspicious Executable Transfer" (sid 1000009)
+# qui utilise le buffer file_data — sans ceci elle ne matchera jamais.
+# ------------------------------------------------------------
+file-store:
+  enabled: yes
+  log-dir: filestore
+  force-filestore: no
